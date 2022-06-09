@@ -65,6 +65,9 @@ UIS.InputBegan:Connect(function(input)
 		end
 	elseif input.KeyCode == Enum.KeyCode.RightShift then
 		script.Parent.MessageBox.Text:CaptureFocus()
+	elseif input.KeyCode == Enum.KeyCode.Slash then
+		task.wait() -- This is here because it adds another slash
+		script.Parent.MessageBox.Text:CaptureFocus()
 	end
 end)
 
