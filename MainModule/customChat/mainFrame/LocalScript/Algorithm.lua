@@ -1,4 +1,5 @@
 -- This is a ModuleScript.
+-- Code taken from: https://www.roblox.com/library/5522369070/ROBLOX-Username-Color-Algorithm
 local BC = BrickColor.new
 
 local ChatColors = {
