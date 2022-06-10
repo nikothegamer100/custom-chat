@@ -20,11 +20,3 @@ events.deleteMsg.OnServerEvent:Connect(function(plr, msgId)
 	if Settings.message_deletion == false then return end
 	events.deleteMsg:FireAllClients(plr,msgId)
 end)
-
-script.setMod.Event:Connect(function(plr)
-	table.insert(mods, plr)
-end)
-
-script.setSettings.Event:Connect(function(setting, value)
-	Settings[setting] = value
-end)
