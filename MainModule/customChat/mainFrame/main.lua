@@ -1,59 +1,43 @@
 local UIS = game:GetService("UserInputService")
 local Focused = false
+local mods = {}
 wait(0.3)
 game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-local userColor = require(script.Algorithm)
+local userColor = require(script.Parent.utility.Algorithm)
 local utility = require(script.Parent.utility)
-local commands = {
-	["clear"] = {
-		Func = function()
-			for i,v in pairs(script.Parent.Main:GetChildren()) do
-				if v:IsA("GuiObject") then
-					v:Destroy()
-				end
-			end
-		end,
-	}
-}
+local Icon = require(script.Parent.utility.Icon)
 
-
-
-
-
-
-local function sendMsg(plr, msg, id,tags, System)
-	if System and System == true then
-		local clone = script.Parent.Parent.message:Clone()
-		clone.Parent = script.Parent.Main
-		clone.messageId.Value = id
-		clone.user.Value = "System"
-		clone.Text = " [SYSTEM]: "..msg
-		clone.Visible = true
-	else
-		local color = userColor(plr.Name)
-		local clone = script.Parent.Parent.message:Clone()
-		clone.Parent = script.Parent.Main
-		clone.messageId.Value = id
-		clone.user.Value = plr.Name
-		local colors = string.split(tostring(color), ",")
-		clone.Text = tags.." <font color='rgb("..utility.getChatColor(plr.Name)..")'>["..plr.Name.."]: </font> "..msg
-		clone.Visible = true
+local icon = Icon.new()
+:setImage(9237764773)
+:setLabel("Chat")
+:setCaption("Opens chat")
+:setTip("Open Chat")
+:bindToggleItem(script.toggle)
+icon.toggled:Connect(function(isSelected)
+	--print(icon:getToggleState(isSelected))
+	if icon:getToggleState(isSelected) == "deselected" then
+		game.TweenService:Create(script.Parent, TweenInfo.new(0.5), {Position = UDim2.new(-0.3,0,0.012,0)}):Play()
+	
+	elseif icon:getToggleState(isSelected) == "selected" then
+		game.TweenService:Create(script.Parent, TweenInfo.new(0.5), {Position = UDim2.new(0,0,0.012,0)}):Play()
+	
 	end
-	script.Parent.Main.CanvasPosition += Vector2.new(0,30)
-end
+end)
+
+
 local Shift = false
 local slash = false
 UIS.InputBegan:Connect(function(input)
 	if Focused == true and input.KeyCode == Enum.KeyCode.Return then
 		if string.len(script.Parent.MessageBox.Text.Text) >= 250 then
-			sendMsg("", "Your message is too long; < 250", true)
+			require(script.Parent.utility.messages):send({message = "your message is too long", user = "System"})
 			
 		end
 		local args = string.split(script.Parent.MessageBox.Text.Text, " ")
 		local command = string.sub(args[1], 2, string.len(args[1]))
 		if string.sub(args[1],1,1) == "/" then
 		local success, err = pcall(function()
-			commands[command].Func()
+			utility.command(command)
 			end)
 			if err then
 				game.ReplicatedStorage.chat.sendMsg:FireServer(script.Parent.MessageBox.Text.Text, game.HttpService:GenerateGUID())
@@ -66,7 +50,7 @@ UIS.InputBegan:Connect(function(input)
 	elseif input.KeyCode == Enum.KeyCode.RightShift then
 		script.Parent.MessageBox.Text:CaptureFocus()
 	elseif input.KeyCode == Enum.KeyCode.Slash then
-		task.wait() -- This is here because it adds another slash
+		task.wait()
 		script.Parent.MessageBox.Text:CaptureFocus()
 	end
 end)
@@ -87,13 +71,14 @@ end)
 
 
 game.ReplicatedStorage.chat.sendMsg.OnClientEvent:Connect(function(plr, msg,tags, id)
-	sendMsg(plr,msg, id,tags)
+	
+	require(script.Parent.utility.messages):send({message = msg, user = plr})
 end)
 
 game.ReplicatedStorage.chat.deleteMsg.OnClientEvent:Connect(function(plr,id)
-	for i,v in pairs(script.Parent.Main:GetChildren()) do
-		if v:IsA("GuiObject") and v.messageId.Value == id and v.user.Value == plr.Name then
-			v:Destroy()
-		end
-	end
+	require(script.Parent.utility.messages):delete({user = plr, messageId = id})
+end)
+
+script.setMod.OnClientEvent:Connect(function(plr)
+	table.insert(mods, plr)
 end)
