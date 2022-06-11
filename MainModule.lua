@@ -1,3 +1,5 @@
+-- dont mind just testing forks
+
 local ds = game:GetService("DataStoreService"):GetDataStore("Chat datastore")
 
 return function(data)
